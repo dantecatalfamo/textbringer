@@ -156,11 +156,15 @@ module Textbringer
       }
       if buffer.nil?
         name = File.basename(file_name)
-        begin
-          buffer = Buffer.open(file_name, name: new_buffer_name(name))
-          add(buffer)
-        rescue Errno::ENOENT
-          buffer = new_buffer(name, file_name: file_name)
+        if File.directory? file_name
+          buffer = DiredMode.open(file_name)
+        else 
+          begin
+            buffer = Buffer.open(file_name, name: new_buffer_name(name))
+            add(buffer)
+          rescue Errno::ENOENT
+            buffer = new_buffer(name, file_name: file_name)
+          end
         end
       end
       buffer
@@ -264,6 +268,20 @@ module Textbringer
       if /\A#{Regexp.quote(basename)}(<\d+>)?\z/ !~ name
         self.name = basename
       end
+    end
+
+    def default_directory
+      if !file_name
+        nil
+      elsif directory?
+        file_name + File::SEPARATOR
+      else
+        File.dirname(file_name) + File::SEPARATOR
+      end
+    end
+
+    def directory?
+      File.directory?(file_name)
     end
 
     def file_encoding=(enc)
@@ -534,6 +552,17 @@ module Textbringer
       end
       @point = pos
     end
+
+    def line_at_point
+      line = nil
+      save_excursion do
+        begl = beginning_of_line
+        endl = end_of_line
+        line = substring(begl, endl)
+      end
+      line
+    end
+
 
     def goto_line(n)
       pos = point_min

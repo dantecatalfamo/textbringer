@@ -15,7 +15,8 @@ module Textbringer
         buffer.beginning_of_buffer
         buffer.looking_at?(/#!.*$/) ? buffer.match_string(0) : nil
       }
-      mode = Mode.list.find { |m|
+      mode = buffer.directory? ? DiredMode
+        : Mode.list.find { |m|
         (m.file_name_pattern &&
          m.file_name_pattern =~ File.basename(buffer.file_name)) ||
           (m.interpreter_name_pattern &&
