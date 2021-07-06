@@ -2,7 +2,7 @@ module Textbringer
   class DiredMode < Mode
     
     LS_OPTIONS = '-alpH'
-    BEFORE_FILENAME_REGEX = /^\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+./
+    BEFORE_FILENAME_REGEX = /^\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+/
     
     define_generic_command :dired_find_file
     define_generic_command :dired_up_directory
