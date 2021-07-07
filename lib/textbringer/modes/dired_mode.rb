@@ -3,15 +3,21 @@ module Textbringer
     
     LS_OPTIONS = '-alpH'
     BEFORE_FILENAME_REGEX = /^\S+\s+[^\n]\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+|^total\s\w+$|^\S+:$/
+    FILENAME_REGEX = /(?!\s+)(\S+)$/
+    SYMLINK_REGEX = /(\S+)(?=\s+\-\>)/
     
     define_generic_command :dired_find_file
     define_generic_command :dired_up_directory
     define_generic_command :dired_next_line
     define_generic_command :dired_previous_line
+    define_generic_command :dired_copy_file_name_as_kill
+    define_generic_command :dired_revert
     
     define_keymap :DIRED_MODE_MAP
     DIRED_MODE_MAP.define_key("n", :dired_next_line_command)
     DIRED_MODE_MAP.define_key("p", :dired_previous_line_command)
+    DIRED_MODE_MAP.define_key("w", :dired_copy_file_name_as_kill_command)
+    DIRED_MODE_MAP.define_key("g", :dired_revert_command)
     DIRED_MODE_MAP.define_key("\C-m", :dired_find_file_command)
     DIRED_MODE_MAP.define_key("^", :dired_up_directory_command)
 
@@ -55,6 +61,20 @@ module Textbringer
       split = @buffer.default_directory.split(File::SEPARATOR)
       new_path = split[0..-2].join(File::SEPARATOR)
       find_file(new_path)
+    end
+
+    def dired_copy_file_name_as_kill
+      file_name = File.basename(file_at_point)
+      KILL_RING.push(file_name)
+      message(file_name)
+    end
+
+    def dired_revert
+      directory = @buffer.default_directory
+      pos = @buffer.point
+      @buffer.kill
+      find_file(directory)
+      Buffer.current.goto_char(pos)
     end
 
     def align_with_file_name
