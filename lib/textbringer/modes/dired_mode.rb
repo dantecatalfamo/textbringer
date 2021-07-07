@@ -72,9 +72,11 @@ module Textbringer
     def dired_revert
       directory = @buffer.default_directory
       pos = @buffer.point
+      line, _ = @buffer.get_line_and_column(pos)
       @buffer.kill
       find_file(directory)
-      Buffer.current.goto_char(pos)
+      new_line, _ = Buffer.current.get_line_and_column(Buffer.current.point)
+      Buffer.current.next_line(line - new_line)
     end
 
     def align_with_file_name
